@@ -25,6 +25,7 @@ typedef enum : NSUInteger {
  *  @param completion when open status changed, call back.
  */
 - (void)addSwipeLeftGestureConfigureHandler:(UIView *(^)())handler completion:(void(^)(GBSwipeTableViewCell *cell, UIView *rightView, GBStatus status))completion;
+- (void)removeSwipeLeftGesture;//remove the gesture and view added.
 
 - (void)openManual;
 

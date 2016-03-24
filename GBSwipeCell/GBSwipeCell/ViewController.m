@@ -80,22 +80,24 @@
     
     cell.textLabel.text = [[NSDate date] description];
     
-    [cell addSwipeLeftGestureConfigureHandler:^UIView *{
-        return [self getRightContainerViewAtIndexPath:indexPath];
-    } completion:^(GBSwipeTableViewCell *cell, UIView *rightView, GBStatus status) {
-        switch (status) {
-            case GBStatusOpen:{
-                
-                break;
+    if (indexPath.row % 2 == 0) {
+        [cell addSwipeLeftGestureConfigureHandler:^UIView *{
+            return [self getRightContainerViewAtIndexPath:indexPath];
+        } completion:^(GBSwipeTableViewCell *cell, UIView *rightView, GBStatus status) {
+            switch (status) {
+                case GBStatusOpen:{
+                    
+                    break;
+                }
+                case GBStatusClose:{
+                    
+                    break;
+                }
+                default:
+                    break;
             }
-            case GBStatusClose:{
-                
-                break;
-            }
-            default:
-                break;
-        }
-    }];
+        }];
+    }
     
     return cell;
 }

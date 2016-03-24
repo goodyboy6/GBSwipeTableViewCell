@@ -46,7 +46,7 @@ static char kGBBlockKey;
     
     UIPanGestureRecognizer *_panGestureRecognizer;
     
-    CGFloat _panStartPoint;
+    CGPoint _panStartPoint;
     
     void(^_swipeStatusHandler)(GBSwipeTableViewCell *cell, UIView *rightView, GBStatus status);
     
@@ -60,7 +60,18 @@ static char kGBBlockKey;
 @end
 
 @implementation GBSwipeTableViewCell
+#pragma mark - life cycle
+
 #pragma mark - open api
+- (void)removeSwipeLeftGesture
+{
+    _status = GBStatusClose;
+    [_rightView removeFromSuperview];
+    
+    [self removeGestureRecognizer:_panGestureRecognizer];
+    _panGestureRecognizer = nil;
+}
+
 - (void)addSwipeLeftGestureConfigureHandler:(UIView *(^)())handler completion:(void(^)(GBSwipeTableViewCell *cell, UIView *rightView, GBStatus status))completion
 {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -158,6 +169,14 @@ static char kGBBlockKey;
 }
 
 #pragma mark - event response
+BOOL shouldSwipe(CGPoint start, CGPoint end){
+    BOOL should = start.x - end.x > 0 && (start.x - end.x > fabs(start.y - end.y));
+    if (should) {
+        NSLog(@"%@:%@, %f, %f", NSStringFromCGPoint(start), NSStringFromCGPoint(end), start.x - end.x, fabs(start.y - end.y));
+    }
+    return should;
+}
+
 - (void)panHandler:(UIPanGestureRecognizer *)g
 {
     switch (g.state) {
@@ -165,7 +184,7 @@ static char kGBBlockKey;
             if (_status == GBStatusOpen) {
                 [self closeManual];
             }else{
-                _panStartPoint = [g locationInView:self].x;
+                _panStartPoint = [g locationInView:self.window];
             }
         break;
         case UIGestureRecognizerStateChanged:
@@ -173,10 +192,10 @@ static char kGBBlockKey;
                 return;
             }
             
-            if (_panStartPoint > [g locationInView:self].x ) {
+            if (shouldSwipe(_panStartPoint, [g locationInView:self.window])){//_panStartPoint - [g locationInView:self].x > 20) {
                 self.contentView.frame = ({
                     CGRect f = self.contentView.frame;
-                    f.origin.x = [g locationInView:self].x - _panStartPoint;
+                    f.origin.x = [g locationInView:self].x - _panStartPoint.x;
                     f;
                 });
             }
