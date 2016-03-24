@@ -13,29 +13,41 @@ typedef enum : NSUInteger {
     GBStatusOpen,
 } GBStatus;
 
+typedef enum : NSUInteger {
+    GBSwipeDirectionToLeft,
+    GBSwipeDirectionToRight,
+    GBSwipeDirectionToBoth// Not available Now
+} GBSwipeDirection;
+
+@interface UIButton (GBBlock)
+- (void)addControlEvent:(UIControlEvents)event callBack:(void(^)(UIButton *))callBack;
+@end
+
 /**
- * swipe left table view Cell
+ * support add swipe to left or right, not both
  */
 @interface GBSwipeTableViewCell : UITableViewCell
 
 /**
- *  add gesture to swipe to left
+ *  swipe to left or right
  *
  *  @param handler  return the view that will be autolayouted in the right side of the cell. the width of the view should be provided, and the height or origin will be ignored. NOTE: the subview of the view should be autolayouted for dynamic cell height.
  *  @param completion when open status changed, call back.
  */
-- (void)addSwipeLeftGestureConfigureHandler:(UIView *(^)())handler completion:(void(^)(GBSwipeTableViewCell *cell, UIView *rightView, GBStatus status))completion;
-- (void)removeSwipeLeftGesture;//remove the gesture and view added.
+- (void)addSwipeWithDirection:(GBSwipeDirection)direction configure:(UIView *(^)())handler completion:(void(^)(GBSwipeTableViewCell *cell, UIView *view, GBStatus status))completion;
+- (void)removeSwipe;//remove the gesture and view added above
 
+//manual action
 - (void)openManual;
-
 - (void)closeManual;
 
 @end
 
-@interface UIButton (GBBlock)
+@interface GBSwipeTableViewCell (NSDeprecated)
 
-- (void)addControlEvent:(UIControlEvents)event callBack:(void(^)(UIButton *))callBack;
+- (void)addSwipeLeftGestureConfigureHandler:(UIView *(^)())handler completion:(void(^)(GBSwipeTableViewCell *cell, UIView *rightView, GBStatus status))completion NS_DEPRECATED_IOS(2_0, 9_0);//use addSwipeWithDirection:configure:completion: instead
+- (void)removeSwipeLeftGesture NS_DEPRECATED_IOS(2_0, 9_0);//use removeSwipe instead
 
 @end
+
 

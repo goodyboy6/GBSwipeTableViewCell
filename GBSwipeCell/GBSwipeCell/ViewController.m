@@ -29,7 +29,7 @@
 - (UIView *)getRightContainerViewAtIndexPath:(NSIndexPath *)indexPath
 {
     UIView *swipeView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 132, 44)];
-    
+    swipeView.backgroundColor = [UIColor redColor];
     UIButton *button1 = [UIButton buttonWithType:UIButtonTypeCustom];
     [button1 setTitle:@"star" forState:UIControlStateNormal];
     button1.backgroundColor = [UIColor blueColor];
@@ -80,24 +80,22 @@
     
     cell.textLabel.text = [[NSDate date] description];
     
-    if (indexPath.row % 2 == 0) {
-        [cell addSwipeLeftGestureConfigureHandler:^UIView *{
-            return [self getRightContainerViewAtIndexPath:indexPath];
-        } completion:^(GBSwipeTableViewCell *cell, UIView *rightView, GBStatus status) {
-            switch (status) {
-                case GBStatusOpen:{
-                    
-                    break;
-                }
-                case GBStatusClose:{
-                    
-                    break;
-                }
-                default:
-                    break;
+    [cell addSwipeWithDirection:indexPath.row % 2 == 0 configure:^UIView *{
+        return [self getRightContainerViewAtIndexPath:indexPath];
+    } completion:^(GBSwipeTableViewCell *cell, UIView *rightView, GBStatus status) {
+        switch (status) {
+            case GBStatusOpen:{
+                
+                break;
             }
-        }];
-    }
+            case GBStatusClose:{
+                
+                break;
+            }
+            default:
+                break;
+        }
+    }];
     
     return cell;
 }
