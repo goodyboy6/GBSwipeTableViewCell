@@ -33,12 +33,12 @@ typedef enum : NSUInteger {
 @property (readonly, nonatomic)  GBSwipeDirection direction NS_AVAILABLE_IOS(7_0);
 
 /**
- *  swipe to left or right. The method will change cell.selectionStyle and cell.contentView.backgroundColor which should 'opaque', if it unnecessary, change then after the method called.
+ *  swipe to left or right. The method will change cell.selectionStyle and cell.contentView.backgroundColor which should 'opaque', change then after the method called if it unnecessary.
  *
  *  @param handler  return the view that will be autolayouted in the right side of the cell. the width of the view should be provided, and the height or origin will be ignored. NOTE: the subview of the view should be autolayouted for dynamic cell height.
  *  @param completion when open status changed, call back.
  */
-- (void)addSwipeWithDirection:(GBSwipeDirection)direction provideViewHandler:(UIView *(^)())handler statusDidChangedHandler:(void(^)(GBSwipeTableViewCell *cell, UIView *viewThatProvided))completion NS_AVAILABLE_IOS(7_0);
+- (void)addSwipeWithDirection:(GBSwipeDirection)direction provideViewHandler:(UIView *(^)(GBSwipeTableViewCell *))handler statusDidChangedHandler:(void(^)(GBSwipeTableViewCell *cell, UIView *viewThatProvided))completion NS_AVAILABLE_IOS(7_0);
 - (void)removeSwipe NS_AVAILABLE_IOS(7_0);//remove the gesture and view added above
 
 //manual action

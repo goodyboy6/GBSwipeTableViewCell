@@ -83,8 +83,16 @@
     cell.textLabel.text = [[NSDate date] description];
     
     GBSwipeDirection direction = indexPath.row%3;
-    [cell addSwipeWithDirection:direction provideViewHandler:^UIView *{
-        return [DemoView viewForDirection:direction];//[self getRightContainerViewAtIndexPath:indexPath];
+    [cell addSwipeWithDirection:direction provideViewHandler:^UIView *(GBSwipeTableViewCell *theCell){
+        DemoView *demoView = [DemoView viewForDirection:direction];//[self getRightContainerViewAtIndexPath:indexPath];
+        
+        demoView.button1ClickedHandler = ^{ [theCell closeManual]; };
+        demoView.button2ClickedHandler = ^{ [theCell closeManual]; };
+        demoView.button3ClickedHandler = ^{ [theCell closeManual]; };
+        demoView.button4ClickedHandler = ^{ [theCell closeManual]; };
+
+        return demoView;
+        
     } statusDidChangedHandler:^(GBSwipeTableViewCell *cell, UIView *viewThatProvided) {
         switch (cell.status) {
             case GBStatusOpen:{

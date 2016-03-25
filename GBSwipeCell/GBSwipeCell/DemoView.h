@@ -11,6 +11,11 @@
 
 @interface DemoView : UIView
 
+@property (copy, nonatomic) dispatch_block_t button1ClickedHandler;
+@property (copy, nonatomic) dispatch_block_t button2ClickedHandler;
+@property (copy, nonatomic) dispatch_block_t button3ClickedHandler;
+@property (copy, nonatomic) dispatch_block_t button4ClickedHandler;
+
 + (instancetype)viewForDirection:(GBSwipeDirection)direction;
 
 @end

@@ -22,4 +22,33 @@
     return (DemoView *)array[0];
 }
 
+
+- (IBAction)button1Clicked:(id)sender
+{
+    if (self.button1ClickedHandler) {
+        self.button1ClickedHandler();
+    }
+}
+
+- (IBAction)button2Clicked:(id)sender
+{
+    if (self.button1ClickedHandler) {
+        self.button1ClickedHandler();
+    }
+}
+
+- (IBAction)button3Clicked:(id)sender
+{
+    if (self.button1ClickedHandler) {
+        self.button1ClickedHandler();
+    }
+}
+
+- (IBAction)button4Clicked:(id)sender
+{
+    if (self.button1ClickedHandler) {
+        self.button1ClickedHandler();
+    }
+}
+
 @end

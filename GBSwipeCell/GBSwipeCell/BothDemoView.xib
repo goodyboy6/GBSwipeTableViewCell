@@ -15,21 +15,33 @@
                     <rect key="frame" x="15" y="0.0" width="77" height="61"/>
                     <color key="backgroundColor" red="1" green="0.45882352939999999" blue="0.1019607843" alpha="1" colorSpace="calibratedRGB"/>
                     <state key="normal" title="Button1"/>
+                    <connections>
+                        <action selector="button1Clicked:" destination="iN0-l3-epB" eventType="touchUpInside" id="3iN-0Q-9VJ"/>
+                    </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MLd-Dn-Rzz">
                     <rect key="frame" x="102" y="0.0" width="76.5" height="61"/>
                     <color key="backgroundColor" red="0.0039215686269999999" green="0.51764705879999995" blue="0.84313725490000002" alpha="1" colorSpace="calibratedRGB"/>
                     <state key="normal" title="Button2"/>
+                    <connections>
+                        <action selector="button2Clicked:" destination="iN0-l3-epB" eventType="touchUpInside" id="csC-ic-sCY"/>
+                    </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LMK-uG-q2b">
                     <rect key="frame" x="275.5" y="0.0" width="76.5" height="61"/>
                     <color key="backgroundColor" red="1" green="0.35112827540000002" blue="0.17529427340000001" alpha="1" colorSpace="calibratedRGB"/>
                     <state key="normal" title="Button4"/>
+                    <connections>
+                        <action selector="button4Clicked:" destination="iN0-l3-epB" eventType="touchUpInside" id="mlr-rl-oQr"/>
+                    </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="60o-nQ-YLG">
                     <rect key="frame" x="188.5" y="0.0" width="77" height="61"/>
                     <color key="backgroundColor" red="0.25918381940000002" green="0.61434659089999999" blue="0.39070632420000001" alpha="1" colorSpace="calibratedRGB"/>
                     <state key="normal" title="Button3"/>
+                    <connections>
+                        <action selector="button3Clicked:" destination="iN0-l3-epB" eventType="touchUpInside" id="KzR-qB-VsM"/>
+                    </connections>
                 </button>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>

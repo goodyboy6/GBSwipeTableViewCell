@@ -66,7 +66,7 @@ static char kGBBlockKey;
 #pragma mark - life cycle
 
 #pragma mark - open APIs
-- (void)addSwipeWithDirection:(GBSwipeDirection)direction provideViewHandler:(UIView *(^)())handler statusDidChangedHandler:(void(^)(GBSwipeTableViewCell *cell, UIView *viewThatProvided))completion;
+- (void)addSwipeWithDirection:(GBSwipeDirection)direction provideViewHandler:(UIView *(^)(GBSwipeTableViewCell *cell))handler statusDidChangedHandler:(void(^)(GBSwipeTableViewCell *cell, UIView *viewThatProvided))completion;
 {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.contentView.backgroundColor = [UIColor whiteColor];
@@ -74,7 +74,7 @@ static char kGBBlockKey;
     _status = GBStatusClose;
     _direction = direction;
     _swipeStatusHandler = [completion copy];
-    _viewThatProvided = handler();
+    _viewThatProvided = handler(self);
 
     _panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panHandler:)];
     _panGestureRecognizer.delegate = self;
@@ -268,7 +268,9 @@ static inline CGFloat shouldOpen(UIView *contentView, UIView *viewThatProvided) 
 - (void)addSwipeLeftGestureConfigureHandler:(UIView *(^)())handler completion:(void(^)(GBSwipeTableViewCell *cell, UIView *rightView, GBStatus status))completion
 {
     __weak typeof(self) weakSelf = self;
-    [self addSwipeWithDirection:GBSwipeDirectionToLeft provideViewHandler:handler statusDidChangedHandler:^(GBSwipeTableViewCell *cell, UIView *viewThatProvided) {
+    [self addSwipeWithDirection:GBSwipeDirectionToLeft provideViewHandler:^UIView * _Nonnull(GBSwipeTableViewCell * _Nonnull cell) {
+        return handler();
+    } statusDidChangedHandler:^(GBSwipeTableViewCell *cell, UIView *viewThatProvided) {
         completion(cell, viewThatProvided, weakSelf.status);
     }];
 }
