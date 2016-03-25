@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="DemoView">
+            <rect key="frame" x="0.0" y="0.0" width="367" height="61"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ng4-Um-spI">
+                    <rect key="frame" x="15" y="0.0" width="77" height="61"/>
+                    <color key="backgroundColor" red="1" green="0.45882352939999999" blue="0.1019607843" alpha="1" colorSpace="calibratedRGB"/>
+                    <state key="normal" title="Button1"/>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MLd-Dn-Rzz">
+                    <rect key="frame" x="102" y="0.0" width="76.5" height="61"/>
+                    <color key="backgroundColor" red="0.0039215686269999999" green="0.51764705879999995" blue="0.84313725490000002" alpha="1" colorSpace="calibratedRGB"/>
+                    <state key="normal" title="Button2"/>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LMK-uG-q2b">
+                    <rect key="frame" x="275.5" y="0.0" width="76.5" height="61"/>
+                    <color key="backgroundColor" red="1" green="0.35112827540000002" blue="0.17529427340000001" alpha="1" colorSpace="calibratedRGB"/>
+                    <state key="normal" title="Button4"/>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="60o-nQ-YLG">
+                    <rect key="frame" x="188.5" y="0.0" width="77" height="61"/>
+                    <color key="backgroundColor" red="0.25918381940000002" green="0.61434659089999999" blue="0.39070632420000001" alpha="1" colorSpace="calibratedRGB"/>
+                    <state key="normal" title="Button3"/>
+                </button>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="ng4-Um-spI" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="15" id="4gs-Bz-XGh"/>
+                <constraint firstItem="LMK-uG-q2b" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="Eot-xl-SoT"/>
+                <constraint firstAttribute="bottom" secondItem="LMK-uG-q2b" secondAttribute="bottom" id="FLv-pH-8vh"/>
+                <constraint firstAttribute="bottom" secondItem="60o-nQ-YLG" secondAttribute="bottom" id="HnQ-iI-KxT"/>
+                <constraint firstItem="ng4-Um-spI" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="JpW-Ro-1mZ"/>
+                <constraint firstAttribute="trailing" secondItem="LMK-uG-q2b" secondAttribute="trailing" constant="15" id="KGd-fP-K18"/>
+                <constraint firstAttribute="bottom" secondItem="ng4-Um-spI" secondAttribute="bottom" id="KHM-8j-YxN"/>
+                <constraint firstItem="MLd-Dn-Rzz" firstAttribute="leading" secondItem="ng4-Um-spI" secondAttribute="trailing" constant="10" id="Ly0-C7-crt"/>
+                <constraint firstItem="60o-nQ-YLG" firstAttribute="width" secondItem="ng4-Um-spI" secondAttribute="width" id="ON7-Ck-WCA"/>
+                <constraint firstItem="LMK-uG-q2b" firstAttribute="leading" secondItem="60o-nQ-YLG" secondAttribute="trailing" constant="10" id="Onn-fl-Rjq"/>
+                <constraint firstItem="60o-nQ-YLG" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="RMD-PS-nDV"/>
+                <constraint firstItem="60o-nQ-YLG" firstAttribute="leading" secondItem="MLd-Dn-Rzz" secondAttribute="trailing" constant="10" id="VID-Q9-Kd3"/>
+                <constraint firstItem="MLd-Dn-Rzz" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="iRw-0a-2n8"/>
+                <constraint firstAttribute="bottom" secondItem="MLd-Dn-Rzz" secondAttribute="bottom" id="pna-Zn-gxy"/>
+                <constraint firstItem="LMK-uG-q2b" firstAttribute="width" secondItem="ng4-Um-spI" secondAttribute="width" id="u5y-VL-fmO"/>
+                <constraint firstItem="MLd-Dn-Rzz" firstAttribute="width" secondItem="ng4-Um-spI" secondAttribute="width" id="yfJ-Qh-JAA"/>
+            </constraints>
+            <nil key="simulatedStatusBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="488.5" y="121.5"/>
+        </view>
+    </objects>
+</document>

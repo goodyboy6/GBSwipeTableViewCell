@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "GBSwipeTableViewCell.h"
+#import "DemoView.h"
 
 @interface ViewController ()
 
@@ -46,6 +47,7 @@
     //touch events
     __weak typeof(self) weakSelf = self;
     [button1 addControlEvent:UIControlEventTouchUpInside callBack:^(UIButton *b){
+        //catch cell
         GBSwipeTableViewCell *cell = [weakSelf.tableView cellForRowAtIndexPath:indexPath];
         [cell closeManual];
         NSLog(@"%@", [b titleForState:UIControlStateNormal]);
@@ -56,22 +58,22 @@
     
     //add constrains
     //.......   masonry or defualt autolayout
-    button1.frame = CGRectMake(0, 0, 66, 44);
-    button2.frame = CGRectMake(66, 0, 66, 44);
+    button1.frame = CGRectMake(0, 0, 66, 60);
+    button2.frame = CGRectMake(66, 0, 66, 60);
     
     return swipeView;
 }
 
 #pragma mark - UITableViewDataSource
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 10;
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 60;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView
- numberOfRowsInSection:(NSInteger)section
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 10;
+    return 100;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -80,10 +82,11 @@
     
     cell.textLabel.text = [[NSDate date] description];
     
-    [cell addSwipeWithDirection:indexPath.row % 2 == 0 configure:^UIView *{
-        return [self getRightContainerViewAtIndexPath:indexPath];
-    } completion:^(GBSwipeTableViewCell *cell, UIView *rightView, GBStatus status) {
-        switch (status) {
+    GBSwipeDirection direction = indexPath.row%3;
+    [cell addSwipeWithDirection:direction provideViewHandler:^UIView *{
+        return [DemoView viewForDirection:direction];//[self getRightContainerViewAtIndexPath:indexPath];
+    } statusDidChangedHandler:^(GBSwipeTableViewCell *cell, UIView *viewThatProvided) {
+        switch (cell.status) {
             case GBStatusOpen:{
                 
                 break;

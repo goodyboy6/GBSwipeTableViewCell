@@ -48,9 +48,9 @@ static char kGBBlockKey;
     
     CGPoint _panStartPoint;
     
-    void(^_swipeStatusHandler)(GBSwipeTableViewCell *cell, UIView *rightView, GBStatus status);
+    void(^_swipeStatusHandler)(GBSwipeTableViewCell *cell, UIView *viewThatProvided);
     
-    UIView *_viewSwiped;
+    UIView *_viewThatProvided;
     
     TouchView *_touchView;
     
@@ -58,6 +58,7 @@ static char kGBBlockKey;
 }
 
 @property (readwrite, nonatomic)  GBStatus status;
+@property (readwrite, nonatomic)  GBSwipeDirection direction;
 
 @end
 
@@ -65,32 +66,37 @@ static char kGBBlockKey;
 #pragma mark - life cycle
 
 #pragma mark - open APIs
-- (void)addSwipeWithDirection:(GBSwipeDirection)direction configure:(UIView *(^)())handler completion:(void(^)(GBSwipeTableViewCell *cell, UIView *view, GBStatus status))completion
+- (void)addSwipeWithDirection:(GBSwipeDirection)direction provideViewHandler:(UIView *(^)())handler statusDidChangedHandler:(void(^)(GBSwipeTableViewCell *cell, UIView *viewThatProvided))completion;
 {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.contentView.backgroundColor = [UIColor whiteColor];
-    self.clipsToBounds = YES;
-    
+
     _status = GBStatusClose;
     _direction = direction;
     _swipeStatusHandler = [completion copy];
-    _viewSwiped = handler();
+    _viewThatProvided = handler();
 
     _panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panHandler:)];
     _panGestureRecognizer.delegate = self;
     [self addGestureRecognizer:_panGestureRecognizer];
     
-    [_viewSwiped removeFromSuperview];
-    [self insertSubview:_viewSwiped belowSubview:self.contentView];
+    [_viewThatProvided removeFromSuperview];
+    [self insertSubview:_viewThatProvided belowSubview:self.contentView];
     
     //add subview constraints
-    _viewSwiped.translatesAutoresizingMaskIntoConstraints = NO;
+    _viewThatProvided.translatesAutoresizingMaskIntoConstraints = NO;
     
-    NSLayoutAttribute attribute = _direction == GBSwipeDirectionToRight ? NSLayoutAttributeLeading : NSLayoutAttributeTrailing;
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewSwiped attribute:attribute relatedBy:NSLayoutRelationEqual toItem:self attribute:attribute multiplier:1 constant:0]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewSwiped attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewSwiped attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:-1/[UIScreen mainScreen].scale]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewSwiped attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:_viewSwiped.frame.size.width]];
+    if (_direction != GBSwipeDirectionToBoth) {
+        NSLayoutAttribute attribute = _direction == GBSwipeDirectionToRight ? NSLayoutAttributeLeading : NSLayoutAttributeTrailing;
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:attribute relatedBy:NSLayoutRelationEqual toItem:self attribute:attribute multiplier:1 constant:0]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:_viewThatProvided.frame.size.width]];
+    }else{
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeading multiplier:1 constant:0]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTrailing multiplier:1 constant:0]];
+    }
+
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:-1/[UIScreen mainScreen].scale]];
 }
 
 - (void)removeSwipe
@@ -107,7 +113,7 @@ static char kGBBlockKey;
     [UIView animateWithDuration:.3 animations:^{
         self.contentView.frame = ({
             CGRect f = self.contentView.frame;
-            f.origin.x = _viewSwiped.frame.size.width * ((_direction == GBSwipeDirectionToLeft) ? -1 : 1);
+            f.origin.x = _viewThatProvided.frame.size.width * (f.origin.x/fabs(f.origin.x));
             f;
         });
     } completion:^(BOOL finished) {
@@ -128,11 +134,11 @@ static char kGBBlockKey;
     }];
 }
 
-#pragma mark - setter
+#pragma mark - setter && getter
 - (void)setStatus:(GBStatus)status
 {
     _status = status;
-    _swipeStatusHandler(self, _viewSwiped, _status);
+    _swipeStatusHandler(self, _viewThatProvided);
     
     if (_status == GBStatusOpen) {
         [_touchView removeFromSuperview];
@@ -145,7 +151,7 @@ static char kGBBlockKey;
         _touchView.tappedCallBack = ^(UIView *view, CGPoint point, UIEvent *event){
             
             typeof(self) strongSelf = weakSelf;
-            CGRect rect = [strongSelf->_viewSwiped.superview convertRect:strongSelf->_viewSwiped.frame toView:view];
+            CGRect rect = [strongSelf->_viewThatProvided.superview convertRect:strongSelf->_viewThatProvided.frame toView:view];
             if (CGRectContainsPoint(rect, point)) {
                 return NO;
             }else{
@@ -173,17 +179,36 @@ static char kGBBlockKey;
     }
 }
 
-#pragma mark - event response
+#pragma mark - pan gesture handler
 static inline BOOL shouldSwipe(CGPoint start, CGPoint end, GBSwipeDirection direction) {
     
     CGFloat xDistance = start.x - end.x;
     CGFloat yDistance = start.y - end.y;
-    BOOL should = ((direction == GBSwipeDirectionToLeft) ?  xDistance > 0 : xDistance < 0) && (fabs(xDistance) > fabs(yDistance));
-    return should;
+    
+    BOOL isValidDirection = (fabs(xDistance) > fabs(yDistance));
+    
+    BOOL isCorrectDirection = YES;
+    switch (direction) {
+        case GBSwipeDirectionToLeft:
+            isCorrectDirection = (xDistance > 0);
+            break;
+        case GBSwipeDirectionToRight:
+            isCorrectDirection = (xDistance < 0);
+            break;
+        default:
+            isCorrectDirection = YES;
+            break;
+    }
+    
+    return isCorrectDirection && isValidDirection;
 }
 
-static inline CGFloat distanceBetween(CGPoint start, CGPoint end, GBSwipeDirection direction) {
-    return (direction == GBSwipeDirectionToLeft) ?  (end.x - start.x) : (end.x - start.x);
+static inline CGFloat offsetBetween(CGPoint start, CGPoint end, GBSwipeDirection direction) {
+    return end.x - start.x;
+}
+
+static inline CGFloat shouldOpen(UIView *contentView, UIView *viewThatProvided) {
+    return fabs(contentView.frame.origin.x) >= MIN(contentView.frame.size.width/3, viewThatProvided.frame.size.width);
 }
 
 - (void)panHandler:(UIPanGestureRecognizer *)g
@@ -191,10 +216,10 @@ static inline CGFloat distanceBetween(CGPoint start, CGPoint end, GBSwipeDirecti
     switch (g.state) {
         case UIGestureRecognizerStateBegan:
             if (_status == GBStatusOpen) {
-                [self closeManual];
-            }else{
-                _panStartPoint = [g locationInView:self.window];
+                return;
             }
+            
+            _panStartPoint = [g locationInView:self.window];
         break;
         case UIGestureRecognizerStateChanged:
             if (_status == GBStatusOpen) {
@@ -204,7 +229,7 @@ static inline CGFloat distanceBetween(CGPoint start, CGPoint end, GBSwipeDirecti
             if (shouldSwipe(_panStartPoint, [g locationInView:self.window], _direction)){
                 self.contentView.frame = ({
                     CGRect f = self.contentView.frame;
-                    f.origin.x = distanceBetween(_panStartPoint, [g locationInView:self.window], _direction);
+                    f.origin.x = offsetBetween(_panStartPoint, [g locationInView:self.window], _direction);
                     f;
                 });
             }
@@ -214,7 +239,7 @@ static inline CGFloat distanceBetween(CGPoint start, CGPoint end, GBSwipeDirecti
                 return;
             }
             
-            if (abs((int)self.contentView.frame.origin.x) > _viewSwiped.frame.size.width/2) {
+            if (shouldOpen(self.contentView, _viewThatProvided)) {
                 [self openManual];
             }else{
                 [self closeManual];
@@ -242,7 +267,10 @@ static inline CGFloat distanceBetween(CGPoint start, CGPoint end, GBSwipeDirecti
 
 - (void)addSwipeLeftGestureConfigureHandler:(UIView *(^)())handler completion:(void(^)(GBSwipeTableViewCell *cell, UIView *rightView, GBStatus status))completion
 {
-    [self addSwipeWithDirection:GBSwipeDirectionToLeft configure:handler completion:completion];
+    __weak typeof(self) weakSelf = self;
+    [self addSwipeWithDirection:GBSwipeDirectionToLeft provideViewHandler:handler statusDidChangedHandler:^(GBSwipeTableViewCell *cell, UIView *viewThatProvided) {
+        completion(cell, viewThatProvided, weakSelf.status);
+    }];
 }
 
 @end
