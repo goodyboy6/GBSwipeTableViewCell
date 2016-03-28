@@ -49,6 +49,7 @@ static char kGBBlockKey;
     CGPoint _panStartPoint;
     
     void(^_swipeStatusHandler)(GBSwipeTableViewCell *cell, UIView *viewThatProvided);
+    UIView *(^_provideViewHandler)(GBSwipeTableViewCell *cell);
     
     UIView *_viewThatProvided;
     
@@ -71,54 +72,53 @@ static char kGBBlockKey;
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.contentView.backgroundColor = [UIColor whiteColor];
 
+    [self removeSwipe];
+
     _status = GBStatusClose;
     _direction = direction;
     _swipeStatusHandler = [completion copy];
-    _viewThatProvided = handler(self);
+    _provideViewHandler = [handler copy];
 
     _panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panHandler:)];
     _panGestureRecognizer.delegate = self;
     [self addGestureRecognizer:_panGestureRecognizer];
-    
-    [_viewThatProvided removeFromSuperview];
-    [self insertSubview:_viewThatProvided belowSubview:self.contentView];
-    
-    //add subview constraints
-    _viewThatProvided.translatesAutoresizingMaskIntoConstraints = NO;
-    
-    if (_direction != GBSwipeDirectionToBoth) {
-        NSLayoutAttribute attribute = _direction == GBSwipeDirectionToRight ? NSLayoutAttributeLeading : NSLayoutAttributeTrailing;
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:attribute relatedBy:NSLayoutRelationEqual toItem:self attribute:attribute multiplier:1 constant:0]];
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:_viewThatProvided.frame.size.width]];
-    }else{
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeading multiplier:1 constant:0]];
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTrailing multiplier:1 constant:0]];
-    }
-
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:-1/[UIScreen mainScreen].scale]];
 }
 
 - (void)removeSwipe
 {
     _status = GBStatusClose;
     _direction = GBSwipeDirectionToLeft;
-    _swipeStatusHandler = nil;
+    _swipeStatusHandler = NULL;
+    _provideViewHandler = NULL;
     [self removeGestureRecognizer:_panGestureRecognizer];
     _panGestureRecognizer = nil;
+    [_viewThatProvided removeFromSuperview];
+    _viewThatProvided = nil;
 }
 
 - (void)openManual
 {
-    [UIView animateWithDuration:.3 animations:^{
-        self.contentView.frame = ({
-            CGRect f = self.contentView.frame;
-            f.origin.x = _viewThatProvided.frame.size.width * (f.origin.x/fabs(f.origin.x));
-            f;
+    dispatch_block_t openAmianted = ^{
+        [UIView animateWithDuration:.3 animations:^{
+            self.contentView.frame = ({
+                CGRect f = self.contentView.frame;
+                f.origin.x = _viewThatProvided.frame.size.width *(f.origin.x == 0 ? -1 :  (f.origin.x/fabs(f.origin.x)));
+                f;
+            });
+        } completion:^(BOOL finished) {
+            self.status = GBStatusOpen;
+        }];
+    };
+    if (![self willAddRevealingView]) {
+        openAmianted();
+    }else{
+        [self showRevealingView];
+        
+        dispatch_async(dispatch_get_main_queue(), ^(void) {
+            openAmianted();
         });
-    } completion:^(BOOL finished) {
-        self.status = GBStatusOpen;
-    }];
+    }
+
 }
 
 - (void)closeManual
@@ -132,6 +132,43 @@ static char kGBBlockKey;
     } completion:^(BOOL finished) {
         self.status = GBStatusClose;
     }];
+}
+
+#pragma mark - private
+- (BOOL)willAddRevealingView
+{
+    if (!_provideViewHandler) {
+        return NO;
+    }
+    
+    if (_viewThatProvided && _viewThatProvided.superview) {
+        return NO;
+    }
+    return YES;
+}
+
+- (void)showRevealingView
+{
+    if (![self willAddRevealingView]) {
+        return;
+    }
+    
+    _viewThatProvided = _provideViewHandler(self);
+    [self insertSubview:_viewThatProvided belowSubview:self.contentView];
+    
+    //add subview constraints
+    _viewThatProvided.translatesAutoresizingMaskIntoConstraints = NO;
+    if (_direction != GBSwipeDirectionToBoth) {
+        NSLayoutAttribute attribute = _direction == GBSwipeDirectionToRight ? NSLayoutAttributeLeading : NSLayoutAttributeTrailing;
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:attribute relatedBy:NSLayoutRelationEqual toItem:self attribute:attribute multiplier:1 constant:0]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:_viewThatProvided.frame.size.width]];
+    }else{
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeading multiplier:1 constant:0]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTrailing multiplier:1 constant:0]];
+    }
+    
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:_viewThatProvided attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:-1/[UIScreen mainScreen].scale]];
 }
 
 #pragma mark - setter && getter
@@ -222,6 +259,7 @@ static inline CGFloat shouldOpen(UIView *contentView, UIView *viewThatProvided) 
             }
             
             _panStartPoint = [g locationInView:self.window];
+            [self showRevealingView];
         break;
         case UIGestureRecognizerStateChanged:
             if (_status == GBStatusOpen) {
