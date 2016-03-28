@@ -138,7 +138,9 @@ static char kGBBlockKey;
 - (void)setStatus:(GBStatus)status
 {
     _status = status;
-    _swipeStatusHandler(self, _viewThatProvided);
+    if (_swipeStatusHandler) {
+        _swipeStatusHandler(self, _viewThatProvided);
+    }
     
     if (_status == GBStatusOpen) {
         [_touchView removeFromSuperview];
