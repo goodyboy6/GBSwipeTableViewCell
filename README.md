@@ -9,7 +9,7 @@ It only needs the caller provide a view for display when swipe to left or right.
 * Support swipe to left\right\both direction. 
 * Supports IOS 7.0+
 
-Example thunmbnail:
+Example thumbnail:
 
 ![image](https://github.com/goodyboy6/GBSwipeTableViewCell/blob/master/snatshot.png)
 
