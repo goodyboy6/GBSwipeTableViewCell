@@ -108,6 +108,8 @@
         }
     }];
     
+    cell.openThreshold = 30;
+    
     return cell;
 }
 

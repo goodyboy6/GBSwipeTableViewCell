@@ -31,6 +31,7 @@ typedef enum : NSUInteger {
 
 @property (readonly, nonatomic)  GBStatus status NS_AVAILABLE_IOS(7_0);
 @property (readonly, nonatomic)  GBSwipeDirection direction NS_AVAILABLE_IOS(7_0);
+@property (readwrite, nonatomic)  CGFloat openThreshold NS_AVAILABLE_IOS(7_0);//if valid swiped distance is more than openThreshold, it will open the view or will close animated. Defalultly, if GBSwipeDirectionToLeft or GBSwipeDirectionToRight, the value is the provideView' width; if GBSwipeDirectionToBoth, is the contentView.frame.size.width/3.
 
 /**
  *  swipe to left or right. The method will change cell.selectionStyle and cell.contentView.backgroundColor which should 'opaque', change then after the method called if it unnecessary.

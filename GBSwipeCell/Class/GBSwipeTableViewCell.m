@@ -46,8 +46,6 @@ static char kGBBlockKey;
     
     UIPanGestureRecognizer *_panGestureRecognizer;
     
-    CGPoint _panStartPoint;
-    
     void(^_swipeStatusHandler)(GBSwipeTableViewCell *cell, UIView *viewThatProvided);
     UIView *(^_provideViewHandler)(GBSwipeTableViewCell *cell);
     
@@ -94,6 +92,7 @@ static char kGBBlockKey;
     _panGestureRecognizer = nil;
     [_viewThatProvided removeFromSuperview];
     _viewThatProvided = nil;
+    _openThreshold = NSNotFound;
 }
 
 - (void)openManual
@@ -144,6 +143,7 @@ static char kGBBlockKey;
     if (_viewThatProvided && _viewThatProvided.superview) {
         return NO;
     }
+    
     return YES;
 }
 
@@ -190,13 +190,12 @@ static char kGBBlockKey;
         _touchView.tappedCallBack = ^(UIView *view, CGPoint point, UIEvent *event){
             
             typeof(self) strongSelf = weakSelf;
-            CGRect rect = [strongSelf->_viewThatProvided.superview convertRect:strongSelf->_viewThatProvided.frame toView:view];
-            if (CGRectContainsPoint(rect, point)) {
+            CGRect viewThatProvidedFrame = [strongSelf->_viewThatProvided.superview convertRect:strongSelf->_viewThatProvided.frame toView:view];
+            if (CGRectContainsPoint(viewThatProvidedFrame, point)) {
                 return NO;
             }else{
                 [view removeFromSuperview];
                 [weakSelf closeManual];
-                
                 return YES;
             }
         };
@@ -205,34 +204,41 @@ static char kGBBlockKey;
     }
 }
 
+- (CGFloat)openThreshold
+{
+    if (_openThreshold == NSNotFound) {
+        return MIN(self.contentView.frame.size.width/3, _viewThatProvided.frame.size.width);
+    }
+    
+    return _openThreshold;
+}
+
 - (UITableView *)tableView
 {
     UIView *superView = self.superview;
     while (![superView isKindOfClass:[UITableView class]]) {
         superView = superView.superview;
     }
+    
     if ([superView isKindOfClass:[UITableView class]]) {
         return (UITableView *)superView;
-    }else{
-        return nil;
     }
+    
+    return nil;
 }
 
 #pragma mark - pan gesture handler
-static inline BOOL shouldSwipe(CGPoint start, CGPoint end, GBSwipeDirection direction) {
+static inline BOOL shouldSwipe(CGPoint translation, GBSwipeDirection direction) {
     
-    CGFloat xDistance = start.x - end.x;
-    CGFloat yDistance = start.y - end.y;
-    
-    BOOL isValidDirection = (fabs(xDistance) > fabs(yDistance));
+    BOOL isValidDirection = (fabs(translation.x) > fabs(translation.y));
     
     BOOL isCorrectDirection = YES;
     switch (direction) {
         case GBSwipeDirectionToLeft:
-            isCorrectDirection = (xDistance > 0);
+            isCorrectDirection = translation.x < 0;
             break;
         case GBSwipeDirectionToRight:
-            isCorrectDirection = (xDistance < 0);
+            isCorrectDirection = translation.x > 0;
             break;
         default:
             isCorrectDirection = YES;
@@ -242,44 +248,30 @@ static inline BOOL shouldSwipe(CGPoint start, CGPoint end, GBSwipeDirection dire
     return isCorrectDirection && isValidDirection;
 }
 
-static inline CGFloat offsetBetween(CGPoint start, CGPoint end, GBSwipeDirection direction) {
-    return end.x - start.x;
-}
-
-static inline CGFloat shouldOpen(UIView *contentView, UIView *viewThatProvided) {
-    return fabs(contentView.frame.origin.x) >= MIN(contentView.frame.size.width/3, viewThatProvided.frame.size.width);
-}
-
 - (void)panHandler:(UIPanGestureRecognizer *)g
 {
     switch (g.state) {
         case UIGestureRecognizerStateBegan:
-            if (_status == GBStatusOpen) {
-                return;
-            }
+            if (_status == GBStatusOpen) { return; }
             
-            _panStartPoint = [g locationInView:self.window];
             [self showRevealingView];
         break;
         case UIGestureRecognizerStateChanged:
-            if (_status == GBStatusOpen) {
-                return;
-            }
+            if (_status == GBStatusOpen) { return; }
             
-            if (shouldSwipe(_panStartPoint, [g locationInView:self.window], _direction)){
+            CGPoint transition = [g translationInView:self.window];
+            if (shouldSwipe(transition, _direction)){
                 self.contentView.frame = ({
                     CGRect f = self.contentView.frame;
-                    f.origin.x = offsetBetween(_panStartPoint, [g locationInView:self.window], _direction);
+                    f.origin.x = transition.x;
                     f;
                 });
             }
         break;
         case UIGestureRecognizerStateEnded:
-            if (_status == GBStatusOpen) {
-                return;
-            }
+            if (_status == GBStatusOpen) { return; }
             
-            if (shouldOpen(self.contentView, _viewThatProvided)) {
+            if (fabs(self.contentView.frame.origin.x) >= self.openThreshold) {
                 [self openManual];
             }else{
                 [self closeManual];
